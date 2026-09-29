@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import ChatHeader from "./ChatHeader";
@@ -7,7 +7,7 @@ import MessageSkeleton from "./skeletons/MessageSkeleton";
 import { formatMessageTime } from "../lib/utils";
 
 export default function ChatContainer() {
-    const {
+  const {
     messages,
     getMessages,
     isMessagesLoading,
@@ -16,28 +16,51 @@ export default function ChatContainer() {
     unsubscribeFromMessages,
   } = useChatStore();
   const { authUser } = useAuthStore();
-  const messageEndRef = useRef(null);
+
+  const listRef = useRef(null);
+  const stickToBottom = useRef(true); // чи користувач зараз унизу
+
+  const scrollToBottom = (behavior = "auto") => {
+    const el = listRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior });
+  };
+
+  const handleScroll = () => {
+    const el = listRef.current;
+    if (!el) return;
+    stickToBottom.current =
+      el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+  };
 
   useEffect(() => {
-  if (!selectedUser) return;
+    if (!selectedUser) return;
 
-  getMessages(selectedUser.id);
-  subscribeToMessages(selectedUser.id);
+    getMessages(selectedUser.id);
+    subscribeToMessages(selectedUser.id);
 
-  return () => unsubscribeFromMessages();
-}, [selectedUser]);
+    return () => unsubscribeFromMessages();
+  }, [selectedUser?.id]);
 
+  // Відкрили чат / завершилось завантаження: миттєво вниз, без анімації
+  useLayoutEffect(() => {
+    if (isMessagesLoading) return;
+    stickToBottom.current = true;
+    scrollToBottom("auto");
+  }, [selectedUser?.id, isMessagesLoading]);
 
-
+  // Нове повідомлення: плавно вниз, якщо ми унизу або це наше повідомлення
   useEffect(() => {
-    if (messageEndRef.current && messages) {
-      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (isMessagesLoading || messages.length === 0) return;
+    const last = messages[messages.length - 1];
+    if (last.senderId === authUser.id || stickToBottom.current) {
+      scrollToBottom("smooth");
     }
-  }, [messages]);
+  }, [messages.length]);
 
   if (isMessagesLoading) {
     return (
-      <div className="flex-1 flex flex-col overflow-auto">
+      <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
         <ChatHeader />
         <MessageSkeleton />
         <MessageInput />
@@ -46,18 +69,23 @@ export default function ChatContainer() {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-auto">
+    <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
       <ChatHeader />
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.flat().map((message) => (
+      <div
+        ref={listRef}
+        onScroll={handleScroll}
+        className="flex-1 p-4 space-y-4 overflow-y-auto"
+      >
+        {messages.map((message) => (
           <div
             key={message.id}
-            className={`chat ${message.senderId === authUser.id ? "chat-end" : "chat-start"}`}
-            ref={messageEndRef}
+            className={`chat ${
+              message.senderId === authUser.id ? "chat-end" : "chat-start"
+            }`}
           >
-            <div className=" chat-image avatar">
-              <div className="size-10 rounded-full border">
+            <div className="chat-image avatar">
+              <div className="border rounded-full size-10">
                 <img
                   src={
                     message.senderId === authUser.id
@@ -68,17 +96,20 @@ export default function ChatContainer() {
                 />
               </div>
             </div>
-            <div className="chat-header mb-1">
-              <time className="text-xs opacity-50 ml-1">
+            <div className="mb-1 chat-header">
+              <time className="ml-1 text-xs opacity-50">
                 {formatMessageTime(message.createdAt)}
               </time>
             </div>
-            <div className="chat-bubble flex flex-col">
+            <div className="flex flex-col chat-bubble">
               {message.image && (
                 <img
                   src={message.image}
                   alt="Вкладене зображення"
                   className="sm:max-w-[200px] rounded-md mb-2"
+                  onLoad={() => {
+                    if (stickToBottom.current) scrollToBottom("auto");
+                  }}
                 />
               )}
               {message.text && <p>{message.text}</p>}
@@ -90,4 +121,4 @@ export default function ChatContainer() {
       <MessageInput />
     </div>
   );
-};
+}
