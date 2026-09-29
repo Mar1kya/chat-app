@@ -7,25 +7,36 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173"], 
   },
 });
 
-export function getReceiverSocketId(userId) {
-  return userSocketMap[userId];
-}
+const userSocketMap = new Map();
 
-const userSocketMap = {};
+export function getReceiverSocketIds(userId) {
+  return [...(userSocketMap.get(String(userId)) ?? [])];
+}
 
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
-  if (userId) userSocketMap[userId] = socket.id;
 
-  io.emit("getOnlineUsers", Object.keys(userSocketMap));
+  if (userId) {
+    if (!userSocketMap.has(userId)) userSocketMap.set(userId, new Set());
+    userSocketMap.get(userId).add(socket.id);
+  }
+
+  io.emit("getOnlineUsers", [...userSocketMap.keys()]);
 
   socket.on("disconnect", () => {
-    delete userSocketMap[userId];
-    io.emit("getOnlineUsers", Object.keys(userSocketMap));
+    if (!userId) return;
+
+    const sockets = userSocketMap.get(userId);
+    if (sockets) {
+      sockets.delete(socket.id); 
+      if (sockets.size === 0) userSocketMap.delete(userId);
+    }
+
+    io.emit("getOnlineUsers", [...userSocketMap.keys()]);
   });
 });
 
