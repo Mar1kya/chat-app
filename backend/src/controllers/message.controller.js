@@ -2,7 +2,7 @@ import { ne, and, or, eq } from "drizzle-orm";
 import { db } from "../lib/db.js";
 import { users, messages } from "../lib/schema.js";
 import cloudinary from "../lib/cloudinary.js";
-import { getReceiverSocketId, io } from "../lib/socket.js";
+import { getReceiverSocketIds, io } from "../lib/socket.js";
 
 export async function getUsersForSidebar(req, res) {
   try {
@@ -38,13 +38,13 @@ export async function getMessages(req, res) {
         or(
           and(
             eq(messages.senderId, senderId),
-            eq(messages.receiverId, userToChatId)
+            eq(messages.receiverId, userToChatId),
           ),
           and(
             eq(messages.senderId, userToChatId),
-            eq(messages.receiverId, senderId)
-          )
-        )
+            eq(messages.receiverId, senderId),
+          ),
+        ),
       )
       .orderBy(messages.createdAt);
 
@@ -74,11 +74,11 @@ export async function sendMessage(req, res) {
       })
       .returning();
 
-    const receiverSocketId = getReceiverSocketId(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", message); 
+    const receiverSocketIds = getReceiverSocketIds(receiverId);
+    if (receiverSocketIds.length > 0) {
+      io.to(receiverSocketIds).emit("newMessage", message);
     }
-    res.status(201).json(message); 
+    res.status(201).json(message);
   } catch (error) {
     console.error("Помилка в sendMessage controller:", error.message);
     res.status(500).json({ error: "Внутрішня помилка сервера" });

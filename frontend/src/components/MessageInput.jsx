@@ -6,7 +6,7 @@ export default function MessageInput() {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
-  const { sendMessage } = useChatStore();
+  const { sendMessage, isSending } = useChatStore();
 
   function handleImageChange(e) {
     const file = e.target.files[0];
@@ -44,14 +44,14 @@ export default function MessageInput() {
   }
 
   return (
-    <div className="p-4 w-full">
+    <div className="w-full p-4">
       {imagePreview && (
-        <div className="mb-3 flex items-center gap-2">
+        <div className="flex items-center gap-2 mb-3">
           <div className="relative">
             <img
               src={imagePreview}
               alt="Preview"
-              className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
+              className="object-cover w-20 h-20 border rounded-lg border-zinc-700"
             />
             <button
               onClick={removeImage}
@@ -65,10 +65,10 @@ export default function MessageInput() {
         </div>
       )}
       <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-        <div className="flex-1 flex gap-2">
+        <div className="flex flex-1 gap-2">
           <input
             type="text"
-            className="w-full input input-bordered rounded-lg input-sm sm:input-md"
+            className="w-full rounded-lg input input-bordered input-sm sm:input-md"
             placeholder="Пише повідомлення..."
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -93,9 +93,13 @@ export default function MessageInput() {
         <button
           type="submit"
           className="btn btn-circle"
-          disabled={!text.trim() && !imagePreview}
+          disabled={(!text.trim() && !imagePreview) || isSending}
         >
-          <Send size={22} />
+          {isSending ? (
+            <span className="loading loading-spinner size-5"></span>
+          ) : (
+            <Send size={22} />
+          )}
         </button>
       </form>
     </div>

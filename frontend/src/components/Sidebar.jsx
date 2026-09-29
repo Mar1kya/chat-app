@@ -7,8 +7,10 @@ export default function Sidebar() {
   const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } =
     useChatStore();
 
-  const { onlineUsers } = useAuthStore();
+  const { onlineUsers, authUser } = useAuthStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
+
+  const onlineCount = onlineUsers.filter((id) => id !== authUser?.id).length;
 
   useEffect(() => {
     getUsers();
@@ -21,31 +23,31 @@ export default function Sidebar() {
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
-    <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
-      <div className="border-b border-base-300 w-full p-5">
-        <div className="flex items-center lg:justify-start justify-center gap-2">
+    <aside className="flex flex-col w-20 h-full transition-all duration-200 border-r lg:w-72 border-base-300">
+      <div className="w-full p-5 border-b border-base-300">
+        <div className="flex items-center justify-center gap-2 lg:justify-start">
           <Users className="size-6" />
-          <span className="font-medium hidden lg:block">Контакти</span>
+          <span className="hidden font-medium lg:block">Контакти</span>
         </div>
-        <div className="mt-3 lg:flex items-center text-center gap-2">
-          <label className="cursor-pointer flex items-center justify-center gap-2">
+        <div className="items-center gap-2 mt-3 text-center lg:flex">
+          <label className="flex items-center justify-center gap-2 cursor-pointer">
             <input
               type="checkbox"
               checked={showOnlineOnly}
               onChange={(e) => setShowOnlineOnly(e.target.checked)}
               className="checkbox checkbox-sm"
             />
-            <span className="text-sm hidden lg:inline">
+            <span className="hidden text-sm lg:inline">
               Показати у мережі тільки
             </span>
           </label>
           <span className="text-xs text-center text-zinc-500">
-            ({onlineUsers.length - 1} у мережі)
+            ({onlineCount} у мережі)
           </span>
         </div>
       </div>
 
-      <div className="overflow-y-auto w-full py-3">
+      <div className="w-full py-3 overflow-y-auto">
         {filteredUsers.map((user) => (
           <button
             key={user.id}
@@ -60,17 +62,16 @@ export default function Sidebar() {
               <img
                 src={user.profilePic || "/avatar.png"}
                 alt={user.name}
-                className="size-12 object-cover rounded-full"
+                className="object-cover rounded-full size-12"
               />
               {onlineUsers.includes(user.id) && (
                 <span
-                  className="absolute bottom-0 right-0 size-3 bg-green-500 
-                  rounded-full ring-2 ring-zinc-900"
+                  className="absolute bottom-0 right-0 bg-green-500 rounded-full size-3 ring-2 ring-zinc-900"
                 />
               )}
             </div>
 
-            <div className="hidden lg:block text-left min-w-0">
+            <div className="hidden min-w-0 text-left lg:block">
               <div className="font-medium truncate">{user.fullName}</div>
               <div className="text-sm text-zinc-400">
                 {onlineUsers.includes(user.id) ? "У мережі" : "Не в мережі"}
@@ -79,7 +80,7 @@ export default function Sidebar() {
           </button>
         ))}
         {filteredUsers.length === 0 && (
-          <div className="text-center text-zinc-500 py-4 text-xs lg:text-lg">
+          <div className="py-4 text-xs text-center text-zinc-500 lg:text-lg">
             Немає користувачів у мережі
           </div>
         )}
