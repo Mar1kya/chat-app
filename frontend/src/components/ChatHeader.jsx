@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
+
 export default function ChatHeader() {
   const { selectedUser, setSelectedUser } = useChatStore();
   const { onlineUsers } = useAuthStore();
@@ -9,7 +10,7 @@ export default function ChatHeader() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="avatar">
-            <div className="size-10 rounded-full relative">
+            <div className="relative rounded-full size-10">
               <img
                 src={selectedUser.profilePic || "/avatar.png"}
                 alt={selectedUser.fullName}
@@ -19,7 +20,7 @@ export default function ChatHeader() {
           <div>
             <h3 className="font-medium">{selectedUser.fullName}</h3>
             <p className="text-sm text-base-content/70">
-              {onlineUsers.includes(selectedUser.id) ? "У мережі" : "Не у мережі"}
+              {onlineUsers.includes(selectedUser.id) ? "Online" : "Offline"}
             </p>
           </div>
         </div>

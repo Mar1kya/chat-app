@@ -10,12 +10,12 @@ export async function signup(req, res) {
 
   try {
     if (!fullName || !email || !password) {
-      return res.status(400).json({ message: "Всі поля обов'язкові" });
+      return res.status(400).json({ message: "All fields are required" });
     }
     if (password.length < 6) {
       return res
         .status(400)
-        .json({ message: "Пароль має бути більше 6 символів" });
+        .json({ message: "The password must be longer than 6 characters" });
     }
 
     const existingUser = await db
@@ -24,7 +24,7 @@ export async function signup(req, res) {
       .where(eq(users.email, email));
 
     if (existingUser.length > 0) {
-      return res.status(400).json({ message: "Пошта вже існує" });
+      return res.status(400).json({ message: "The email address already exists" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -50,8 +50,8 @@ export async function signup(req, res) {
       profilePic: newUser.profilePic,
     });
   } catch (error) {
-    console.error("Помилка в контролері реєстрації:", error.message);
-    res.status(500).json({ message: "Внутрішня помилка сервера" });
+    console.error("Error in the registration controller:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
@@ -63,7 +63,7 @@ export async function login(req, res) {
     const existingUser = user[0];
 
     if (!existingUser) {
-      return res.status(400).json({ message: "Недісні облікові дані" });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const isPasswordCorrect = await bcrypt.compare(
@@ -72,7 +72,7 @@ export async function login(req, res) {
     );
 
     if (!isPasswordCorrect) {
-      return res.status(400).json({ message: "Пароль не вірний" });
+      return res.status(400).json({ message: "Incorrect password" });
     }
 
     generateToken(existingUser.id, res);
@@ -84,18 +84,18 @@ export async function login(req, res) {
       profilePic: existingUser.profilePic,
     });
   } catch (error) {
-    console.error("Помилка в контролері входу:", error.message);
-    res.status(500).json({ message: "Внутрішня помилка сервера" });
+    console.error("Error in the login controller:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
 export function logout(req, res) {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
-    res.status(200).json({ message: "Вихід успішний" });
+    res.status(200).json({ message: "The exit was successful" });
   } catch (error) {
-    console.error("Помилка в контролері виходу:", error.message);
-    res.status(500).json({ message: "Внутрішня помилка сервера" });
+    console.error("Error in the output controller:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
@@ -107,7 +107,7 @@ export async function updateProfile(req, res) {
     if (!profilePic) {
       return res
         .status(400)
-        .json({ message: "Профільне зображення обов'язкове" });
+        .json({ message: "A profile picture is required" });
     }
 
     const uploadResponse = await cloudinary.uploader.upload(profilePic);
@@ -123,13 +123,13 @@ export async function updateProfile(req, res) {
     const updatedUser = result[0];
 
     if (!updatedUser) {
-      return res.status(404).json({ message: "Користувача не знайдено" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     res.status(200).json(updatedUser);
   } catch (error) {
-    console.error("Помилка при оновленні профілю:", error.message);
-    res.status(500).json({ message: "Внутрішня помилка сервера" });
+    console.error("Error updating profile:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
@@ -137,7 +137,7 @@ export function checkAuth(req, res) {
   try {
     res.status(200).json(req.user);
   } catch (error) {
-    console.error("Помилка при перевірки аутентифікації:", error.message);
-    res.status(500).json({ message: "Внутрішня помилка сервера" });
+    console.error("Error during authentication check:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }

@@ -3,6 +3,7 @@ import { useChatStore } from "../store/useChatStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { Users } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
+
 export default function Sidebar() {
   const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } =
     useChatStore();
@@ -27,7 +28,7 @@ export default function Sidebar() {
       <div className="w-full p-5 border-b border-base-300">
         <div className="flex items-center justify-center gap-2 lg:justify-start">
           <Users className="size-6" />
-          <span className="hidden font-medium lg:block">Контакти</span>
+          <span className="hidden font-medium lg:block">Contact Information</span>
         </div>
         <div className="items-center gap-2 mt-3 text-center lg:flex">
           <label className="flex items-center justify-center gap-2 cursor-pointer">
@@ -38,15 +39,14 @@ export default function Sidebar() {
               className="checkbox checkbox-sm"
             />
             <span className="hidden text-sm lg:inline">
-              Показати у мережі тільки
+              Show online only
             </span>
           </label>
           <span className="text-xs text-center text-zinc-500">
-            ({onlineCount} у мережі)
+            ({onlineCount} Online)
           </span>
         </div>
       </div>
-
       <div className="w-full py-3 overflow-y-auto">
         {filteredUsers.map((user) => (
           <button
@@ -70,18 +70,17 @@ export default function Sidebar() {
                 />
               )}
             </div>
-
             <div className="hidden min-w-0 text-left lg:block">
               <div className="font-medium truncate">{user.fullName}</div>
               <div className="text-sm text-zinc-400">
-                {onlineUsers.includes(user.id) ? "У мережі" : "Не в мережі"}
+                {onlineUsers.includes(user.id) ? "Online" : "Offline"}
               </div>
             </div>
           </button>
         ))}
         {filteredUsers.length === 0 && (
           <div className="py-4 text-xs text-center text-zinc-500 lg:text-lg">
-            Немає користувачів у мережі
+            No users online
           </div>
         )}
       </div>

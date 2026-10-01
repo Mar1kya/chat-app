@@ -2,21 +2,20 @@ import { MessageSquare } from "lucide-react";
 
 export default function NoChatSelected() {
   return (
-    <div className="w-full flex flex-1 flex-col items-center justify-center p-16 bg-base-100/50">
-      <div className="max-w-md text-center space-y-6">
+    <div className="flex flex-col items-center justify-center flex-1 w-full p-16 bg-base-100/50">
+      <div className="max-w-md space-y-6 text-center">
         <div className="flex justify-center gap-4 mb-4">
           <div className="relative">
             <div
-              className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center
-             justify-center animate-bounce"
+              className="flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 animate-bounce"
             >
               <MessageSquare className="w-8 h-8 text-primary " />
             </div>
           </div>
         </div>
-        <h2 className="text-2xl font-bold">Ласкаво просимо до Chatty!</h2>
+        <h2 className="text-2xl font-bold">Welcome to Chatty!</h2>
         <p className="text-base-content/60">
-          Виберіть розмову на бічній панелі, щоб розпочати чат
+          Select a conversation from the sidebar to start a chat
         </p>
       </div>
     </div>
