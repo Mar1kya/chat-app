@@ -23,7 +23,7 @@ export async function getUsersForSidebar(req, res) {
     res.status(200).json(filteredUsers);
   } catch (error) {
     console.error("Error in getUsersForSidebar:", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }
 export async function getMessages(req, res) {
@@ -51,7 +51,7 @@ export async function getMessages(req, res) {
     res.status(200).json(result);
   } catch (error) {
     console.error("Error in the getMessages controller:", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }
 export async function sendMessage(req, res) {
@@ -59,19 +59,28 @@ export async function sendMessage(req, res) {
     const { text, image } = req.body;
     const { id: receiverId } = req.params;
     const senderId = req.user.id;
+
+    if (!text?.trim() && !image) {
+      return res.status(400).json({ message: "The message is empty" });
+    }
+
     let imageUrl;
     if (image) {
-      const uploadResponse = await cloudinary.uploader.upload(image);
-      imageUrl = uploadResponse.secure_url;
+      try {
+        const uploadResponse = await cloudinary.uploader.upload(image, {
+          folder: "chat",
+          resource_type: "image",
+        });
+        imageUrl = uploadResponse.secure_url;
+      } catch (err) {
+        console.error("Cloudinary:", err.message);
+        return res.status(400).json({ message: "Failed to upload the image" });
+      }
     }
+
     const [message] = await db
       .insert(messages)
-      .values({
-        senderId,
-        receiverId,
-        text,
-        image: imageUrl,
-      })
+      .values({ senderId, receiverId, text, image: imageUrl })
       .returning();
 
     const receiverSocketIds = getReceiverSocketIds(receiverId);
@@ -81,6 +90,6 @@ export async function sendMessage(req, res) {
     res.status(201).json(message);
   } catch (error) {
     console.error("Error in sendMessage controller:", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }
