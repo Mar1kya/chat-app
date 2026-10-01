@@ -22,8 +22,8 @@ export async function getUsersForSidebar(req, res) {
 
     res.status(200).json(filteredUsers);
   } catch (error) {
-    console.error("Помилка в getUsersForSidebar:", error.message);
-    res.status(500).json({ error: "Внутрішня помилка сервера" });
+    console.error("Error in getUsersForSidebar:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }
 export async function getMessages(req, res) {
@@ -50,8 +50,8 @@ export async function getMessages(req, res) {
 
     res.status(200).json(result);
   } catch (error) {
-    console.error("Помилка в getMessages controller:", error.message);
-    res.status(500).json({ error: "Внутрішня помилка сервера" });
+    console.error("Error in the getMessages controller:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }
 export async function sendMessage(req, res) {
@@ -80,7 +80,7 @@ export async function sendMessage(req, res) {
     }
     res.status(201).json(message);
   } catch (error) {
-    console.error("Помилка в sendMessage controller:", error.message);
-    res.status(500).json({ error: "Внутрішня помилка сервера" });
+    console.error("Error in sendMessage controller:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }

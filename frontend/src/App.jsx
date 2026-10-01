@@ -11,6 +11,7 @@ import { Loader } from "lucide-react";
 import { Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useThemeStore } from "./store/useThemeStore";
+
 export const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const { theme } = useThemeStore();

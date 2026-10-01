@@ -17,19 +17,19 @@ export default function ProfilePage() {
     };
   }
   return (
-    <div className="h-max pt-20  pb-14">
-      <div className="max-w-2xl mx-auto p-4 py-8">
-        <div className="bg-base-300 rounded-xl p-6 space-y-8">
+    <div className=" h-max pb-14">
+      <div className="max-w-2xl p-4 pt-20 pb-8 mx-auto">
+        <div className="p-6 space-y-8 bg-base-300 rounded-xl">
           <div className="text-center">
-            <h1 className="text-2xl font-semibold">Профіль</h1>
-            <p className="mt-2">Твоя інфорамція профілю</p>
+            <h1 className="text-2xl font-semibold">Profile</h1>
+            <p className="mt-2">Your profile information</p>
           </div>
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
               <img
                 src={selectedImg || authUser.profilePic || "/avatar.png"}
                 alt="Профіль"
-                className="size-32 rounded-full object-cover border-4 "
+                className="object-cover border-4 rounded-full size-32 "
               />
               <label
                 htmlFor="avatar-upload"
@@ -54,42 +54,40 @@ export default function ProfilePage() {
             </div>
             <p className="text-sm text-zinc-400">
               {isUpdatingProfile
-                ? "Завантаження..."
-                : "Клікни на іконку камери, щоб оновити фото"}
+                ? "Loading..."
+                : "Click the camera icon to update the photo"}
             </p>
           </div>
           <div className="space-y-6">
             <div className="space-y-1.5">
-              <div className="text-sm text-zinc-400 flex items-center gap-2">
+              <div className="flex items-center gap-2 text-sm text-zinc-400">
                 <User className="w-4 h-4" />
-                Повне ім'я
+                Full name
               </div>
               <p className="px-4 py-2.5 bg-base-200 rounded-lg border">
                 {authUser?.fullName}
               </p>
             </div>
-
             <div className="space-y-1.5">
-              <div className="text-sm text-zinc-400 flex items-center gap-2">
+              <div className="flex items-center gap-2 text-sm text-zinc-400">
                 <Mail className="w-4 h-4" />
-                Пошта
+                Email
               </div>
               <p className="px-4 py-2.5 bg-base-200 rounded-lg border">
                 {authUser?.email}
               </p>
             </div>
           </div>
-
-          <div className="mt-6 bg-base-300 rounded-xl p-6">
-            <h2 className="text-lg font-medium  mb-4">Інформація акаунту</h2>
+          <div className="p-6 mt-6 bg-base-300 rounded-xl">
+            <h2 className="mb-4 text-lg font-medium">Account information</h2>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between py-2 border-b border-zinc-700">
-                <span>Учасник з</span>
+                <span>Participant from</span>
                 <span>{authUser.createdAt?.split("T")[0]}</span>
               </div>
               <div className="flex items-center justify-between py-2">
-                <span>Статус акаунту</span>
-                <span className="text-green-500">Активний</span>
+                <span>Account status</span>
+                <span className="text-green-500">Active</span>
               </div>
             </div>
           </div>

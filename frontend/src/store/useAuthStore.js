@@ -31,7 +31,7 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.post("/auth/signup", data);
       set({ authUser: res.data });
-      toast.success("Акаунт створений успішно");
+      toast.success("Account successfully created");
       get().connectSocket();
     } catch (error) {
       toast.error(error.response.data.message);
@@ -44,7 +44,7 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.post("/auth/login", data);
       set({ authUser: res.data });
-      toast.success("Вхід успішний");
+      toast.success("Login successful");
       get().connectSocket();
     } catch (error) {
       toast.error(error.response.data.message);
@@ -56,22 +56,21 @@ export const useAuthStore = create((set, get) => ({
     try {
       await axiosInstance.post("/auth/logout");
       set({ authUser: null });
-      toast.success("Вихід успішний");
+      toast.success("Successfully logged out of the system");
       get().disconnectSocket();
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error(error?.response?.data?.message || "Помилка при виході");
+      toast.error(error?.response?.data?.message || "Error while logging out of the system");
     }
   },
-
   updateProfile: async (data) => {
     set({ isUpdatingProfile: true });
     try {
       const res = await axiosInstance.put("/auth/update-profile", data);
       set({ authUser: res.data });
-      toast.success("Профіль оновлено успішно");
+      toast.success("Profile successfully updated");
     } catch (error) {
-      console.log("Помилка при оновлені профілю", error);
+      console.log("Error updating profile", error);
       toast.error(error.response.data.message);
     } finally {
       set({ isUpdatingProfile: false });

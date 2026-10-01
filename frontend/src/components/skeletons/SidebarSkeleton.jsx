@@ -5,24 +5,23 @@ export default function SidebarSkeleton() {
 
   return (
     <aside
-      className="h-full w-20 lg:w-72 border-r border-base-300 
-    flex flex-col transition-all duration-200"
+      className="flex flex-col w-20 h-full transition-all duration-200 border-r lg:w-72 border-base-300"
     >
-      <div className="border-b border-base-300 w-full p-5">
+      <div className="w-full p-5 border-b border-base-300">
         <div className="flex items-center gap-2">
           <Users className="w-6 h-6" />
-          <span className="font-medium hidden lg:block">Контакти</span>
+          <span className="hidden font-medium lg:block">Contact Information</span>
         </div>
       </div>
-      <div className="overflow-y-auto w-full py-3">
+      <div className="w-full py-3 overflow-y-auto">
         {skeletonContacts.map((_, idx) => (
-          <div key={idx} className="w-full p-3 flex items-center gap-3">
+          <div key={idx} className="flex items-center w-full gap-3 p-3">
             <div className="relative mx-auto lg:mx-0">
-              <div className="skeleton size-12 rounded-full" />
+              <div className="rounded-full skeleton size-12" />
             </div>
-            <div className="hidden lg:block text-left min-w-0 flex-1">
-              <div className="skeleton h-4 w-32 mb-2" />
-              <div className="skeleton h-3 w-16" />
+            <div className="flex-1 hidden min-w-0 text-left lg:block">
+              <div className="w-32 h-4 mb-2 skeleton" />
+              <div className="w-16 h-3 skeleton" />
             </div>
           </div>
         ))}

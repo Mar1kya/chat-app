@@ -3,10 +3,10 @@ import { Send } from "lucide-react";
 import { THEMES } from "../constants";
 
 const PREVIEW_MESSAGES = [
-  { id: 1, content: "Привіт! Як справи?", isSent: false },
+  { id: 1, content: "Hi! How are you?", isSent: false },
   {
     id: 2,
-    content: "У мене все чудово! Просто працюю над деякими новими функціями.",
+    content: "I'm doing great! I'm just working on some new features.",
     isSent: true,
   },
 ];
@@ -14,16 +14,15 @@ const PREVIEW_MESSAGES = [
 export default function SettingsPage() {
   const { theme, setTheme } = useThemeStore();
   return (
-    <div className="h-max container mx-auto px-4 pt-20 max-w-5xl pb-2">
-      <div className="space-y-6">
+    <div className="container max-w-5xl px-4 pt-20 pb-2 mx-auto h-max">
+      <div className="space-y-4">
         <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold">Тема</h2>
+          <h2 className="text-lg font-semibold">Theme</h2>
           <p className="text-sm text-base-content/70">
-            Виберіть тему для інтерфейсу вашого чату
+            Select a theme for your chat interface.
           </p>
         </div>
-
-        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8">
           {THEMES.map((t) => (
             <button
               key={t}
@@ -34,7 +33,7 @@ export default function SettingsPage() {
               onClick={() => setTheme(t)}
             >
               <div
-                className="relative h-8 w-full rounded-md overflow-hidden"
+                className="relative w-full h-8 overflow-hidden rounded-md"
                 data-theme={t}
               >
                 <div className="absolute inset-0 grid grid-cols-4 gap-px p-1">
@@ -50,23 +49,22 @@ export default function SettingsPage() {
             </button>
           ))}
         </div>
-        <h3 className="text-lg font-semibold mb-3">Попередній перегляд</h3>
-        <div className="rounded-xl border border-base-300 overflow-hidden bg-base-100 shadow-lg">
+        <h3 className="text-lg font-semibold">Preview</h3>
+        <div className="overflow-hidden border shadow-lg rounded-xl border-base-300 bg-base-100">
           <div className="p-4 bg-base-200">
             <div className="max-w-lg mx-auto">
-              <div className="bg-base-100 rounded-xl shadow-sm overflow-hidden">
+              <div className="overflow-hidden shadow-sm bg-base-100 rounded-xl">
                 <div className="px-4 py-3 border-b border-base-300 bg-base-100">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-content font-medium">
+                    <div className="flex items-center justify-center w-8 h-8 font-medium rounded-full bg-primary text-primary-content">
                       I
                     </div>
                     <div>
-                      <h3 className="font-medium text-sm">Іван Іванов</h3>
-                      <p className="text-xs text-base-content/70">У мережі</p>
+                      <h3 className="text-sm font-medium">Ivan Ivanov</h3>
+                      <p className="text-xs text-base-content/70">Online</p>
                     </div>
                   </div>
                 </div>
-
                 <div className="p-4 space-y-4 min-h-[200px] max-h-[200px] overflow-y-auto bg-base-100">
                   {PREVIEW_MESSAGES.map((message) => (
                     <div
@@ -92,16 +90,16 @@ export default function SettingsPage() {
                     </div>
                   ))}
                 </div>
-                <div className="p-4 border-t border-base-300 bg-base-100">
+                <div className="p-4 mt-4 border-t border-base-300 bg-base-100">
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      className="input input-bordered flex-1 text-sm h-10"
-                      placeholder="Пише..."
-                      value="Це попередній перегляд"
+                      className="flex-1 h-10 text-sm input input-bordered"
+                      placeholder="He is writing..."
+                      value="This is a preview"
                       readOnly
                     />
-                    <button className="btn btn-primary h-10 min-h-0">
+                    <button className="h-10 min-h-0 btn btn-primary">
                       <Send size={18} />
                     </button>
                   </div>

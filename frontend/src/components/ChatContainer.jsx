@@ -18,7 +18,7 @@ export default function ChatContainer() {
   const { authUser } = useAuthStore();
 
   const listRef = useRef(null);
-  const stickToBottom = useRef(true); // чи користувач зараз унизу
+  const stickToBottom = useRef(true);
 
   const scrollToBottom = (behavior = "auto") => {
     const el = listRef.current;
@@ -42,14 +42,12 @@ export default function ChatContainer() {
     return () => unsubscribeFromMessages();
   }, [selectedUser?.id]);
 
-  // Відкрили чат / завершилось завантаження: миттєво вниз, без анімації
   useLayoutEffect(() => {
     if (isMessagesLoading) return;
     stickToBottom.current = true;
     scrollToBottom("auto");
   }, [selectedUser?.id, isMessagesLoading]);
 
-  // Нове повідомлення: плавно вниз, якщо ми унизу або це наше повідомлення
   useEffect(() => {
     if (isMessagesLoading || messages.length === 0) return;
     const last = messages[messages.length - 1];
@@ -71,7 +69,6 @@ export default function ChatContainer() {
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
       <ChatHeader />
-
       <div
         ref={listRef}
         onScroll={handleScroll}
@@ -80,9 +77,8 @@ export default function ChatContainer() {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`chat ${
-              message.senderId === authUser.id ? "chat-end" : "chat-start"
-            }`}
+            className={`chat ${message.senderId === authUser.id ? "chat-end" : "chat-start"
+              }`}
           >
             <div className="chat-image avatar">
               <div className="border rounded-full size-10">
@@ -92,7 +88,7 @@ export default function ChatContainer() {
                       ? authUser.profilePic || "/avatar.png"
                       : selectedUser.profilePic || "/avatar.png"
                   }
-                  alt="Зображення користувача"
+                  alt="User image"
                 />
               </div>
             </div>
@@ -105,7 +101,7 @@ export default function ChatContainer() {
               {message.image && (
                 <img
                   src={message.image}
-                  alt="Вкладене зображення"
+                  alt="Embedded image"
                   className="sm:max-w-[200px] rounded-md mb-2"
                   onLoad={() => {
                     if (stickToBottom.current) scrollToBottom("auto");
@@ -117,7 +113,6 @@ export default function ChatContainer() {
           </div>
         ))}
       </div>
-
       <MessageInput />
     </div>
   );

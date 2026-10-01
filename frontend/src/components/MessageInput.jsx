@@ -11,7 +11,7 @@ export default function MessageInput() {
   function handleImageChange(e) {
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) {
-      toast.error("Будь ласка, виберіть файл зображення");
+      toast.error("Please select an image file");
       return;
     }
 
@@ -39,7 +39,7 @@ export default function MessageInput() {
       setImagePreview(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
-      console.error("Помилка при надісланні повідомлення:", error);
+      console.error("Error sending message:", error);
     }
   }
 
@@ -69,7 +69,7 @@ export default function MessageInput() {
           <input
             type="text"
             className="w-full rounded-lg input input-bordered input-sm sm:input-md"
-            placeholder="Пише повідомлення..."
+            placeholder="Typing a message..."
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
@@ -80,7 +80,6 @@ export default function MessageInput() {
             ref={fileInputRef}
             onChange={handleImageChange}
           />
-
           <button
             type="button"
             className={`hidden sm:flex btn btn-circle
