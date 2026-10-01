@@ -61,7 +61,7 @@ export default function Sidebar() {
             <div className="relative mx-auto lg:mx-0">
               <img
                 src={user.profilePic || "/avatar.png"}
-                alt={user.name}
+                alt={user.fullName}
                 className="object-cover rounded-full size-12"
               />
               {onlineUsers.includes(user.id) && (

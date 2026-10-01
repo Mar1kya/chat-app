@@ -15,7 +15,7 @@ export async function signup(req, res) {
     if (password.length < 6) {
       return res
         .status(400)
-        .json({ message: "The password must be longer than 6 characters" });
+        .json({ message: "The password must be at least 6 characters long" });
     }
 
     const existingUser = await db
@@ -24,7 +24,9 @@ export async function signup(req, res) {
       .where(eq(users.email, email));
 
     if (existingUser.length > 0) {
-      return res.status(400).json({ message: "The email address already exists" });
+      return res
+        .status(400)
+        .json({ message: "The email address already exists" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -48,6 +50,7 @@ export async function signup(req, res) {
       fullName: newUser.fullName,
       email: newUser.email,
       profilePic: newUser.profilePic,
+      createdAt: newUser.createdAt,
     });
   } catch (error) {
     console.error("Error in the registration controller:", error.message);
@@ -57,6 +60,11 @@ export async function signup(req, res) {
 
 export async function login(req, res) {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
   try {
     const user = await db.select().from(users).where(eq(users.email, email));
 
@@ -68,11 +76,11 @@ export async function login(req, res) {
 
     const isPasswordCorrect = await bcrypt.compare(
       password,
-      existingUser.password
+      existingUser.password,
     );
 
     if (!isPasswordCorrect) {
-      return res.status(400).json({ message: "Incorrect password" });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     generateToken(existingUser.id, res);
@@ -82,6 +90,7 @@ export async function login(req, res) {
       fullName: existingUser.fullName,
       email: existingUser.email,
       profilePic: existingUser.profilePic,
+      createdAt: existingUser.createdAt,
     });
   } catch (error) {
     console.error("Error in the login controller:", error.message);
@@ -92,9 +101,9 @@ export async function login(req, res) {
 export function logout(req, res) {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
-    res.status(200).json({ message: "The exit was successful" });
+    res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
-    console.error("Error in the output controller:", error.message);
+    console.error("Error in the logout controller:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
@@ -105,28 +114,40 @@ export async function updateProfile(req, res) {
     const userId = req.user.id;
 
     if (!profilePic) {
-      return res
-        .status(400)
-        .json({ message: "A profile picture is required" });
+      return res.status(400).json({ message: "A profile picture is required" });
     }
 
-    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    let uploadResponse;
+    try {
+      uploadResponse = await cloudinary.uploader.upload(profilePic, {
+        folder: "avatars",
+        resource_type: "image",
+        transformation: [
+          { width: 400, height: 400, crop: "fill", gravity: "auto" },
+        ],
+      });
+    } catch (err) {
+      console.error("Cloudinary:", err.message);
+      return res.status(400).json({ message: "Failed to upload the image" });
+    }
 
-    const result = await db
+    const [updatedUser] = await db
       .update(users)
-      .set({
-        profilePic: uploadResponse.secure_url,
-      })
+      .set({ profilePic: uploadResponse.secure_url })
       .where(eq(users.id, userId))
       .returning();
-
-    const updatedUser = result[0];
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json(updatedUser);
+    res.status(200).json({
+      id: updatedUser.id,
+      fullName: updatedUser.fullName,
+      email: updatedUser.email,
+      profilePic: updatedUser.profilePic,
+      createdAt: updatedUser.createdAt,
+    });
   } catch (error) {
     console.error("Error updating profile:", error.message);
     res.status(500).json({ message: "Internal Server Error" });

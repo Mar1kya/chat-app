@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
+import { getErrorMessage } from "../lib/utils";
 
 const BASE_URL =
   import.meta.env.MODE === "development" ? "http://localhost:5001" : "/";
@@ -34,7 +35,7 @@ export const useAuthStore = create((set, get) => ({
       toast.success("Account successfully created");
       get().connectSocket();
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(getErrorMessage(error));
     } finally {
       set({ isSigningUp: false });
     }
@@ -47,7 +48,7 @@ export const useAuthStore = create((set, get) => ({
       toast.success("Login successful");
       get().connectSocket();
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(getErrorMessage(error));
     } finally {
       set({ isLoggingIn: false });
     }
@@ -60,18 +61,22 @@ export const useAuthStore = create((set, get) => ({
       get().disconnectSocket();
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error(error?.response?.data?.message || "Error while logging out of the system");
+      toast.error(
+        error?.response?.data?.message ||
+          "Error while logging out of the system",
+      );
     }
   },
   updateProfile: async (data) => {
     set({ isUpdatingProfile: true });
     try {
       const res = await axiosInstance.put("/auth/update-profile", data);
-      set({ authUser: res.data });
+      set((state) => ({ authUser: { ...state.authUser, ...res.data } }));
       toast.success("Profile successfully updated");
+      return true;
     } catch (error) {
-      console.log("Error updating profile", error);
-      toast.error(error.response.data.message);
+      toast.error(getErrorMessage(error));
+      return false;
     } finally {
       set({ isUpdatingProfile: false });
     }

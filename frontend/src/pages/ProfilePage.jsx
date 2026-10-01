@@ -1,20 +1,30 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Camera, Mail, User } from "lucide-react";
+import { prepareImage } from "../lib/utils";
+import toast from "react-hot-toast";
 
 export default function ProfilePage() {
   const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
   async function handleImageUpload(e) {
-    const file = e.target.files[0];
+    const input = e.target;
+    const file = input.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = async () => {
-      const base64Image = reader.result;
+
+    try {
+      const base64Image = await prepareImage(file, {
+        maxGifBytes: 5 * 1024 * 1024,
+        maxSize: 800,
+      });
       setSelectedImg(base64Image);
       await updateProfile({ profilePic: base64Image });
-    };
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setSelectedImg(null);
+      input.value = "";
+    }
   }
   return (
     <div className=" h-max pb-14">
@@ -28,7 +38,7 @@ export default function ProfilePage() {
             <div className="relative">
               <img
                 src={selectedImg || authUser.profilePic || "/avatar.png"}
-                alt="Профіль"
+                alt="Profile"
                 className="object-cover border-4 rounded-full size-32 "
               />
               <label

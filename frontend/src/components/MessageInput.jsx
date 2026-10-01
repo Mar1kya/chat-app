@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
-import { useChatStore } from "../store/useChatStore";
+import toast from "react-hot-toast";
 import { X, Image, Send } from "lucide-react";
+import { useChatStore } from "../store/useChatStore";
+import { prepareImage } from "../lib/utils";
 
 export default function MessageInput() {
   const [text, setText] = useState("");
@@ -8,38 +10,33 @@ export default function MessageInput() {
   const fileInputRef = useRef(null);
   const { sendMessage, isSending } = useChatStore();
 
-  function handleImageChange(e) {
-    const file = e.target.files[0];
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
-      return;
-    }
+  async function handleImageChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+    try {
+      setImagePreview(await prepareImage(file));
+    } catch (err) {
+      toast.error(err.message);
+      setImagePreview(null);
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   }
-  function removeImage(e) {
+
+  function removeImage() {
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
+
   async function handleSendMessage(e) {
     e.preventDefault();
     if (!text.trim() && !imagePreview) return;
 
-    try {
-      await sendMessage({
-        text: text.trim(),
-        image: imagePreview,
-      });
-
+    const ok = await sendMessage({ text: text.trim(), image: imagePreview });
+    if (ok) {
       setText("");
       setImagePreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch (error) {
-      console.error("Error sending message:", error);
     }
   }
 
@@ -65,11 +62,11 @@ export default function MessageInput() {
         </div>
       )}
       <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-        <div className="flex flex-1 gap-2">
+        <div className="flex items-center flex-1 gap-2">
           <input
             type="text"
             className="w-full rounded-lg input input-bordered input-sm sm:input-md"
-            placeholder="Typing a message..."
+            placeholder="Type a message..."
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
@@ -82,8 +79,9 @@ export default function MessageInput() {
           />
           <button
             type="button"
-            className={`hidden sm:flex btn btn-circle
-                     ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
+            className={`flex btn btn-circle ${
+              imagePreview ? "text-emerald-500" : "text-zinc-400"
+            }`}
             onClick={() => fileInputRef.current?.click()}
           >
             <Image size={20} />
